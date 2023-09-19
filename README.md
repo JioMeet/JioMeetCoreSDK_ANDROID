@@ -665,11 +665,13 @@ class YourActivity : AppCompatActivity() {
   ```
   ---
 * ## Video management
-  ##### **`setVideoStreamQuality`**
-  Allows you to set the video stream quality for specific participants in a meeting. This method provides control over the video quality settings, which can help optimize bandwidth usage and improve the overall meeting experience.
-  **Parameters**
+   ##### **`setVideoStreamQuality`**
+  Allows you to set the video stream quality for specific participants in a meeting. This method provides control over the video quality settings, which can help optimize bandwidth usage and improve the overall meeting        experience.
+  
+   **Parameters**
   `videoQualityMap` (Type: Map<String, Any>): A map that specifies the video stream quality settings for specific participants. The keys in the map represent participant identifiers (e.g., user IDs or participant IDs), and the values indicate the desired video quality settings for each participant.
-  **Usage**
+  
+   **Usage**
   ```kotlin
       / Define video quality settings for participants
       val videoQualityMap = mapOf(
