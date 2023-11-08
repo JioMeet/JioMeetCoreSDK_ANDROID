@@ -218,10 +218,10 @@ class JMClientViewModel @Inject constructor(
     }
 
     private fun setLocalUser(user: JMMeetingUser) {
-        val localUser = user.rendererView?.let {
+        val localUser = user.rendererView?.let { renderView ->
             UserInfo(
                 uid = user.uid,
-                videoView = it,
+                videoView = renderView,
                 name = user.displayName ?: "",
                 isAudioMuted = user.isAudioMuted,
                 isVideoMuted = user.isVideoMuted,

@@ -102,6 +102,35 @@ fun VideoView(videoView: RenderView) {
     )
 }
 
+//XML Equivalent of above function to set the videoview in a framelayout
+//<!-- res/layout/video_view_layout.xml -->
+//<FrameLayout
+//xmlns:android="http://schemas.android.com/apk/res/android"
+//android:id="@+id/videoContainer"
+//android:layout_width="match_parent"
+//android:layout_height="match_parent">
+//</FrameLayout>
+
+// Inflate the XML layout that contains a FrameLayout with an ID of 'videoContainer'
+//val view = inflater.inflate(R.layout.video_view_layout, container, false)
+
+// Find the FrameLayout with the ID 'videoContainer' from the inflated view
+//videoContainer = view.findViewById(R.id.videoContainer)
+
+
+// Remove any existing views within the FrameLayout and refresh the layout
+//if (videoContainer != null) {
+//    if (videoContainer?.childCount ?: 0 > 0) {
+//        videoContainer?.removeAllViews()
+//        videoContainer?.invalidate()
+//    }
+
+// Add the video view (or any other view) to the FrameLayout
+//    videoContainer?.addView(videoView.view)
+//}
+
+
+
 @Composable
 private fun FirstNameView(modifier: Modifier, text: String,  isAudioMuted: Boolean) {
     Row(modifier = modifier.padding(start = 10.dp, bottom = 4.dp)) {

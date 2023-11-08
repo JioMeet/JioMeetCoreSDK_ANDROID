@@ -11,7 +11,7 @@ In this documentation, we'll guide you through the process of installation, enab
 your Android app with Jiomeet's real-time communication capabilities swiftly and efficiently.Let's
 get started on your journey to creating seamless communication experiences with Jiomeet Core SDK!
 
-![image info](./images/core_flow.png)
+![image info](./Images/core_flow.png)
 
 ---
 
@@ -740,33 +740,44 @@ class YourActivity : AppCompatActivity() {
   ***
 
 * ## Audio management
+
   ##### **`playbackSignalVolume Method`**
+
   Allows you to adjust the playback signal volume of all remote users in a meeting. This method is
   useful for controlling the audio playback volume for participants' audio signals.
+
   ```kotlin
          public final fun playbackSignalVolume(volume: Int): Unit
   ```
+
   **Parameters**
   `volume` (Type: Int): An integer value representing the desired playback signal volume. The volume
   level can typically range from 0 (mute) to 400 (maximum volume).
   **Usage**
+
   ```kotlin
       // Example: Adjust the playback signal volume for all remote users
       jmClient.playbackSignalVolume(80) // Set the volume level to 80 (80% of maximum)
   ```
 
   ##### **`setAuidioOnlyMode`**
+
   Allows you to set the local particpant in audioOnly mode. This method provides the audio only while user has opened his video, which can help optimize bandwidth usage and
   improve the overall meeting experience.
+
   ```kotlin
          public final fun setAudioOnlyMode(isAudioOnlyMode: Boolean): Unit
   ```
+
   **Parameters**
   `isAudioOnlyMode` (Type: Boolean):Set to true to apply audioOnly mode, or false to unmute it.
 
   ---
+
 * ## Video management
+
   ##### **`setVideoStreamQuality`**
+
   Allows you to set the video stream quality for specific participants in a meeting. This method
   provides control over the video quality settings, which can help optimize bandwidth usage and
   improve the overall meeting experience.
@@ -778,6 +789,7 @@ class YourActivity : AppCompatActivity() {
   participant.
 
   **Usage**
+
   ```kotlin
       / Define video quality settings for participants
       val videoQualityMap = mapOf(
@@ -897,13 +909,17 @@ class YourActivity : AppCompatActivity() {
   ```
 
 * ### Virtual background
+
   `applyVirtualBackground` is a method that allows you to apply a virtual background to the video
   stream.Once the virtual background feature is enabled, all users in the channel can see the custom
   background.
+
   ```kotlin
   public final fun applyVirtualBackground(virtualBackgroundType: VirtualBackgroundType): Unit
   ```
+
   **Parameters**
+
   - `virtualBackgroundType` (Type: `VirtualBackgroundType`): The type of virtual background to
     apply.
 
@@ -925,6 +941,7 @@ class YourActivity : AppCompatActivity() {
       **Usage**
       You can use the `VirtualBackgroundType` enumeration to specify the type of virtual
       background to apply when using the `applyVirtualBackground` method in your application.
+
   ```kotlin
   // Example: Apply a blurred virtual background
   jmClient.applyVirtualBackground(VirtualBackgroundType.BLUR)
@@ -937,6 +954,7 @@ class YourActivity : AppCompatActivity() {
     type.imagePath = "https://example.com/custom-background.jpg"
     jmClient.applyVirtualBackground(VirtualBackgroundType.IMAGE)
   ```
+
 * ### Chat
   ##### **`fetchNextChatMessage`**
   A suspend method that retrieves the next chat message in a meeting's chat thread. This method is
@@ -1285,21 +1303,21 @@ Properties:
 
 **Usage**
 
-  ```Kotlin
-  jmClient.observeJmClientEvent().collect { event ->
-  when (event) {
-    is OnRemoteUserJoinMeeting -> {
-      // Handle when a remote user joins the meeting
-      //participant = event.meeting.participants
-    }
+```Kotlin
+jmClient.observeJmClientEvent().collect { event ->
+when (event) {
+  is OnRemoteUserJoinMeeting -> {
+    // Handle when a remote user joins the meeting
+    //participant = event.meeting.participants
+  }
 
-    else -> {
-      // Handle other events if necessary
-    }
+  else -> {
+    // Handle other events if necessary
   }
 }
+}
 
-  ```
+```
 
 ---
 
