@@ -154,4 +154,4 @@ class YourActivity : AppCompatActivity() {
 
 # Architecture
 
-![image info](../Images/core_flow.png)
+![image info](../images/core_flow.png)
