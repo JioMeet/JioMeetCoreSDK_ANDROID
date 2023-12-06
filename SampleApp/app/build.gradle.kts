@@ -2,7 +2,7 @@ plugins {
     id ("com.android.application")
     id ("org.jetbrains.kotlin.android")
     id ("com.google.dagger.hilt.android")
-    id ("kotlin-kapt")
+    kotlin("kapt")
     id("kotlin-parcelize")
 }
 
@@ -64,8 +64,8 @@ android {
 repositories {
     maven {
         credentials {
-            username = credentials.username
-            password = credentials.password
+            username = ""
+            password = ""
         }
         url = uri("https://maven.pkg.github.com/JioMeet/JioMeetCoreSDK_ANDROID")
     }
@@ -75,7 +75,7 @@ repositories {
 
 
 dependencies {
-    implementation ("com.jiomeet.platform:jiomeetcoresdk:2.3.0")
+    implementation ("com.jiomeet.platform:jiomeetcoresdk:3.0.0-SNAPSHOT-2")
     implementation ("androidx.core:core-ktx:1.9.0")
     testImplementation ("junit:junit:4.13.2")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")

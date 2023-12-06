@@ -12,6 +12,7 @@ import com.example.demo.helper.triggered
 import com.example.demo.model.JioMeetConnectionListener
 import com.example.demo.model.UserInfo
 import com.example.demo.model.WatchPartyToVidyoScreenEvent
+import com.jiomeet.core.CoreApplication
 import com.jiomeet.core.main.JMClient
 import com.jiomeet.core.main.event.OnRemoteUserJoinMeeting
 import com.jiomeet.core.main.event.OnRemoteUserLeftMeeting
@@ -41,8 +42,9 @@ import javax.inject.Inject
 // Example of injecting JMClientViewModel using Hilt:
 @HiltViewModel
 class JMClientViewModel @Inject constructor(
-    private val jmClient: JMClient
 ) : ViewModel() {
+
+    private val jmClient = CoreApplication.coreMainModule.jmClient
     init {
         jmClient.init()
         collectJmClientCoHostEvent()

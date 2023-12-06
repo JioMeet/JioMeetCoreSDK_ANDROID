@@ -10,11 +10,9 @@ import com.example.demo.view.ui.LaunchCore
 import com.jiomeet.core.constant.Constant
 import com.jiomeet.core.main.models.JMJoinMeetingConfig
 import com.jiomeet.core.main.models.JMJoinMeetingData
-import com.jiomeet.core.main.models.JMMeetingUser
 import com.jiomeet.core.main.models.Speaker
 import com.jiomeet.core.utils.BaseUrl
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class JoinRoomActivity : ComponentActivity() {
@@ -23,44 +21,44 @@ class JoinRoomActivity : ComponentActivity() {
         const val TAG = "RoomActivity"
     }
 
-    private val jmJoinMeetingConfig = JMJoinMeetingConfig(
-        userRole = Speaker,
-        isInitialAudioOn = true,
-        isInitialVideoOn = true,
-        isShareScreen = false,
-        isShareWhiteBoard = false
-    )
+    private val jmJoinMeetingConfig =
+            JMJoinMeetingConfig(
+                    userRole = Speaker,
+                    isInitialAudioOn = true,
+                    isInitialVideoOn = true,
+                    isShareScreen = false,
+                    isShareWhiteBoard = false
+            )
 
-    private val jioMeetConnectionListener = object : JioMeetConnectionListener {
-        override fun onLeaveMeeting() {
-            finish()
-        }
-
-    }
+    private val jioMeetConnectionListener =
+            object : JioMeetConnectionListener {
+                override fun onLeaveMeeting() {
+                    finish()
+                }
+            }
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        BaseUrl.initializedNetworkInformation(Constant.Environment.PROD)
+        BaseUrl.initializedNetworkInformation(this@JoinRoomActivity, Constant.Environment.PROD)
         joinVideoCall()
-
     }
 
     private fun joinVideoCall() {
         setContent {
-            val jmJoinMeetingData = JMJoinMeetingData(
-                meetingId = intent.getStringExtra(StringConstants.MEETING_ID) ?: "",
-                meetingPin = intent.getStringExtra(StringConstants.MEETING_PIN) ?: "",
-                displayName = intent.getStringExtra(StringConstants.GUEST_NAME) ?: "",
-                version = "1234",
-                deviceId = "deviceId"
-            )
+            val jmJoinMeetingData =
+                    JMJoinMeetingData(
+                            meetingId = intent.getStringExtra(StringConstants.MEETING_ID) ?: "",
+                            meetingPin = intent.getStringExtra(StringConstants.MEETING_PIN) ?: "",
+                            displayName = intent.getStringExtra(StringConstants.GUEST_NAME) ?: "",
+                            version = "1234",
+                            deviceId = "deviceId"
+                    )
             LaunchCore(
-                jioMeetConnectionListener = jioMeetConnectionListener,
-                jmJoinMeetingConfig = jmJoinMeetingConfig,
-                jmJoinMeetingData = jmJoinMeetingData
+                    jioMeetConnectionListener = jioMeetConnectionListener,
+                    jmJoinMeetingConfig = jmJoinMeetingConfig,
+                    jmJoinMeetingData = jmJoinMeetingData
             )
         }
     }
-
 }
