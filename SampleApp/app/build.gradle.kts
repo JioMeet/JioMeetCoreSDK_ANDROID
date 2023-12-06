@@ -75,7 +75,7 @@ repositories {
 
 
 dependencies {
-    implementation ("com.jiomeet.platform:jiomeetcoresdk:3.0.0-SNAPSHOT-2")
+    implementation ("com.jiomeet.platform:jiomeetcoresdk:3.0.0")
     implementation ("androidx.core:core-ktx:1.9.0")
     testImplementation ("junit:junit:4.13.2")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")

@@ -41,10 +41,19 @@ val bottomControlList = mutableStateListOf(
         borderColor = transparent,
         backgroundColor = transparent
     ),
+    BottomBarItems(
+        BottomItems.ScreenShare.name,
+        R.drawable.ic_screen_share,
+        R.drawable.ic_stop_share,
+        isSelected = true,
+        borderColor = transparent,
+        backgroundColor = transparent
+    ),
 )
 enum class BottomItems {
     Video,
     Audio,
-    Leave
+    Leave,
+    ScreenShare
 }
 

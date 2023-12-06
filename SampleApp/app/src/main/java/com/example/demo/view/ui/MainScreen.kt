@@ -1,5 +1,6 @@
 package com.example.demo.view.ui
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,12 +14,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.demo.helper.UserView
@@ -33,6 +36,7 @@ fun MainScreen(viewModel: JMClientViewModel) {
     // Observe the remote users and local user data from the ViewModel
     val remoteUsers by viewModel.remoteUsers.collectAsState(emptyList())
     val localUser by viewModel.localUser.collectAsState(null)
+    val screenShareInProgress by viewModel.screenShareInProgress.collectAsState()
     
     // Create a horizontally scrollable grid for remote users
     Column(
@@ -49,9 +53,11 @@ fun MainScreen(viewModel: JMClientViewModel) {
             localUser?.let { UserView(it,isLocalUser = true, 240.dp,240.dp)}
         }
 
-
+        if(screenShareInProgress){
+            Text("Screen Sharing in Progress")
+        }
         // Create a bottom bar with audio and video mute icons
-        BottomControlPanel(jmClientViewModel = viewModel)
+        BottomControlPanel(jmClientViewModel = viewModel, screenShareInProgress = screenShareInProgress)
     }
 }
 
@@ -72,7 +78,9 @@ fun RemoteUsersGrid(remoteUsers: List<UserInfo>) {
 fun BottomControlPanel(
     modifier: Modifier = Modifier,
     jmClientViewModel: JMClientViewModel,
+    screenShareInProgress: Boolean
 ) {
+    val context = LocalContext.current
     val bottomBarItems by jmClientViewModel.bottomImageItems.collectAsState()
     Surface(
         modifier = modifier
@@ -91,7 +99,9 @@ fun BottomControlPanel(
                 ShowRowItems(imageData, Modifier.clickable {
                     bottomBarActionListener(
                         jmClientViewModel,
-                        imageData
+                        imageData,
+                        context,
+                        screenShareInProgress
                     )
                 })
             }
@@ -101,6 +111,8 @@ fun BottomControlPanel(
 private fun bottomBarActionListener(
     jmClientViewModel: JMClientViewModel,
     imageData: BottomBarItems,
+    context: Context,
+    screenShareInProgress: Boolean
 ) {
     when (imageData.imageName) {
         BottomItems.Audio.name -> {
@@ -113,6 +125,15 @@ private fun bottomBarActionListener(
 
         BottomItems.Leave.name -> {
             jmClientViewModel.leaveCall()
+        }
+        BottomItems.ScreenShare.name -> {
+            if(screenShareInProgress) {
+                jmClientViewModel.toggleScreenShare(true)
+            } else {
+                //run foreground service
+                jmClientViewModel.showScreenShareNotification(context)
+                jmClientViewModel.toggleScreenShare(false)
+            }
         }
     }
 }

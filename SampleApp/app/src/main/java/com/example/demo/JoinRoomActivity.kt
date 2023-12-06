@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import com.example.demo.helper.StringConstants
 import com.example.demo.model.JioMeetConnectionListener
 import com.example.demo.view.ui.LaunchCore
+import com.jiomeet.core.CoreApplication
 import com.jiomeet.core.constant.Constant
 import com.jiomeet.core.main.models.JMJoinMeetingConfig
 import com.jiomeet.core.main.models.JMJoinMeetingData
@@ -41,6 +42,7 @@ class JoinRoomActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         BaseUrl.initializedNetworkInformation(this@JoinRoomActivity, Constant.Environment.PROD)
+        CoreApplication().recreateModules(this@JoinRoomActivity)
         joinVideoCall()
     }
 

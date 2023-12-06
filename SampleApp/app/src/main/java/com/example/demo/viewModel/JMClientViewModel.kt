@@ -1,9 +1,14 @@
 package com.example.demo.viewModel
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.demo.helper.BottomBarItems
 import com.example.demo.helper.StateEventWithContent
 import com.example.demo.helper.bottomControlList
@@ -12,12 +17,19 @@ import com.example.demo.helper.triggered
 import com.example.demo.model.JioMeetConnectionListener
 import com.example.demo.model.UserInfo
 import com.example.demo.model.WatchPartyToVidyoScreenEvent
+import com.example.demo.service.OnGoingScreenShareService
+import com.jio.sdksampleapp.R
 import com.jiomeet.core.CoreApplication
+import com.jiomeet.core.log.Logger
 import com.jiomeet.core.main.JMClient
+import com.jiomeet.core.main.event.LocalScreenShareStart
+import com.jiomeet.core.main.event.LocalScreenShareStop
 import com.jiomeet.core.main.event.OnRemoteUserJoinMeeting
 import com.jiomeet.core.main.event.OnRemoteUserLeftMeeting
 import com.jiomeet.core.main.event.OnRemoteUserMicStatusChanged
 import com.jiomeet.core.main.event.OnRemoteUserVideoStatusChanged
+import com.jiomeet.core.main.event.OnScreenShareStarted
+import com.jiomeet.core.main.event.OnScreenShareStop
 import com.jiomeet.core.main.event.OnUserJoinMeeting
 import com.jiomeet.core.main.event.OnUserLeaveMeeting
 import com.jiomeet.core.main.event.OnUserMicStatusChanged
@@ -27,6 +39,7 @@ import com.jiomeet.core.main.models.JMJoinMeetingData
 import com.jiomeet.core.main.models.JMMeetingUser
 import com.jiomeet.core.network.api.participants.model.RoomDetailsWithPinState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,9 +55,12 @@ import javax.inject.Inject
 // Example of injecting JMClientViewModel using Hilt:
 @HiltViewModel
 class JMClientViewModel @Inject constructor(
+    @ApplicationContext
+    private val applicationContext: Context
 ) : ViewModel() {
 
     private val jmClient = CoreApplication.coreMainModule.jmClient
+
     init {
         jmClient.init()
         collectJmClientCoHostEvent()
@@ -61,6 +77,12 @@ class JMClientViewModel @Inject constructor(
     private val _remoteUsers = MutableStateFlow<List<UserInfo>>(emptyList())
     val remoteUsers: StateFlow<List<UserInfo>> = _remoteUsers.asStateFlow()
 
+    private val _screenShareInProgress = MutableStateFlow(false)
+    val screenShareInProgress = _screenShareInProgress.asStateFlow()
+
+    private val _screenShareUser = MutableStateFlow<List<UserInfo>>(emptyList())
+    val screenShareUser: StateFlow<List<UserInfo>> = _screenShareUser.asStateFlow()
+
     private val _localUser = MutableStateFlow<UserInfo?>(null)
     val localUser: StateFlow<UserInfo?> = _localUser.asStateFlow()
 
@@ -76,12 +98,17 @@ class JMClientViewModel @Inject constructor(
     private val _bottomBarImages = MutableStateFlow(bottomControlList)
     val bottomImageItems: StateFlow<MutableList<BottomBarItems>> = _bottomBarImages.asStateFlow()
 
-    private val roomDetailsFromPin = MutableStateFlow<RoomDetailsWithPinState>(RoomDetailsWithPinState.Loading(true))
+    private val roomDetailsFromPin =
+        MutableStateFlow<RoomDetailsWithPinState>(RoomDetailsWithPinState.Loading(true))
 
 
     private val _watchPartyToVidyoScreenEvent =
         mutableStateOf<StateEventWithContent<WatchPartyToVidyoScreenEvent>>(consumed())
 
+
+    companion object {
+        const val TAG = "WatchPartyActivity"
+    }
 
     private fun collectJmClientCoHostEvent() {
         viewModelScope.launch {
@@ -90,16 +117,20 @@ class JMClientViewModel @Inject constructor(
                     is OnUserJoinMeeting -> {
                         setLocalUser(it.user)
                     }
+
                     is OnRemoteUserJoinMeeting -> {
-                       appendRemoteUser(it.user)
+                        appendRemoteUser(it.user)
                     }
+
                     is OnUserLeaveMeeting -> {
                         jioMeetConnectionListener?.onLeaveMeeting()
                     }
+
                     is OnRemoteUserLeftMeeting -> {
                         removeRemoteUser(it.user.userId)
 
                     }
+
                     is OnUserMicStatusChanged -> {
                         var currentLocalUser = _localUser.value
                         currentLocalUser = currentLocalUser?.copy(isAudioMuted = it.isMuted)
@@ -108,6 +139,7 @@ class JMClientViewModel @Inject constructor(
                         }
 
                     }
+
                     is OnUserVideoStatusChanged -> {
                         var currentLocalUser = _localUser.value
                         currentLocalUser = currentLocalUser?.copy(isVideoMuted = it.isMuted)
@@ -118,10 +150,10 @@ class JMClientViewModel @Inject constructor(
 
                     is OnRemoteUserMicStatusChanged -> {
                         val currentRemoteUsers = _remoteUsers.value
-                        val idx = currentRemoteUsers.indexOfFirst{ user ->
+                        val idx = currentRemoteUsers.indexOfFirst { user ->
                             user.userId == it.user.userId
                         }
-                        if(idx > 0){
+                        if (idx > 0) {
                             currentRemoteUsers[idx].copy(isAudioMuted = it.isMuted)
                         }
                         _remoteUsers.emit(currentRemoteUsers)
@@ -133,10 +165,32 @@ class JMClientViewModel @Inject constructor(
                             user.userId == it.user.userId
                         }
                         if (idx >= 0) {
-                            currentRemoteUsers[idx] = currentRemoteUsers[idx].copy(isVideoMuted = it.isMuted)
+                            currentRemoteUsers[idx] =
+                                currentRemoteUsers[idx].copy(isVideoMuted = it.isMuted)
                             _remoteUsers.emit(currentRemoteUsers)
                         }
                     }
+
+                    is LocalScreenShareStart -> {
+                        _screenShareInProgress.value = true
+                    }
+
+                    is LocalScreenShareStop -> {
+                        stopScreenShareNotification(applicationContext)
+                        _screenShareInProgress.value = false
+                    }
+
+                    is OnScreenShareStarted -> {
+
+
+                    }
+
+                    is OnScreenShareStop -> {
+
+
+                    }
+
+
                     else -> {}
                 }
             }
@@ -159,6 +213,7 @@ class JMClientViewModel @Inject constructor(
             }
         }
     }
+
     private fun setIsProgressDialog(isProgressDialog: Boolean) {
         viewModelScope.launch {
             _isProgressDialogStateFlow.emit(isProgressDialog)
@@ -176,7 +231,7 @@ class JMClientViewModel @Inject constructor(
     }
 
     fun initAudioWrapper() {
-      jmClient.initializeAudioWrapper()
+        jmClient.initializeAudioWrapper()
     }
 
     fun joinRoom() {
@@ -201,7 +256,7 @@ class JMClientViewModel @Inject constructor(
 
         viewModelScope.launch {
             val currentRemoteUsers = _remoteUsers.value.toMutableList()
-            if(user != null) {
+            if (user != null) {
                 currentRemoteUsers.add(user)
             }
             _remoteUsers.emit(currentRemoteUsers)
@@ -209,7 +264,7 @@ class JMClientViewModel @Inject constructor(
     }
 
     // Function to remove a remote user from the list (if needed)
-    private fun removeRemoteUser(remoteUserId:String) {
+    private fun removeRemoteUser(remoteUserId: String) {
         viewModelScope.launch {
             val currentRemoteUsers = _remoteUsers.value.toMutableList()
             currentRemoteUsers.removeAll { remoteUser ->
@@ -243,16 +298,16 @@ class JMClientViewModel @Inject constructor(
         toggleMic(user.isAudioMuted)
     }
 
-    fun toggleMic(toMute:Boolean){
+    fun toggleMic(toMute: Boolean) {
         viewModelScope.launch {
             jmClient.muteLocalAudio(toMute)
             _micStatus.value = toMute
-            _bottomBarImages.value[0] =  _bottomBarImages.value[0].copy(isSelected = !toMute)
+            _bottomBarImages.value[0] = _bottomBarImages.value[0].copy(isSelected = !toMute)
         }
 
     }
 
-    fun toggleCamera(toMute: Boolean){
+    fun toggleCamera(toMute: Boolean) {
         viewModelScope.launch {
             jmClient.muteLocalVideo(toMute)
             _camStatus.value = toMute
@@ -260,10 +315,41 @@ class JMClientViewModel @Inject constructor(
         }
     }
 
-    fun leaveCall(){
+    fun leaveCall() {
         viewModelScope.launch {
             jmClient.leaveMeeting()
             jioMeetConnectionListener?.onLeaveMeeting()
+        }
+    }
+
+    fun toggleScreenShare(toMute: Boolean) {
+        viewModelScope.launch {
+            jmClient.screenShareState(!toMute)
+            _bottomBarImages.value[3] = _bottomBarImages.value[3].copy(isSelected = toMute)
+        }
+    }
+
+    fun showScreenShareNotification(context: Context) {
+        try {
+            val notificationServiceIntent =
+                Intent(context, OnGoingScreenShareService::class.java)
+            notificationServiceIntent.putExtra(
+                "notification_text",
+                "Screen Share in Progress"
+            )
+            ContextCompat.startForegroundService(context, notificationServiceIntent)
+        } catch (e: Throwable) {
+            Logger.error(TAG, " showScreenShareNotification Failed${e.message}")
+        }
+    }
+
+    fun stopScreenShareNotification(context: Context) {
+        try {
+            val notificationServiceIntent =
+                Intent(context, OnGoingScreenShareService::class.java)
+            context.stopService(notificationServiceIntent)
+        } catch (e: Throwable) {
+            Logger.error(TAG, "stopScreenShareNotification Failed${e.message}")
         }
     }
 
