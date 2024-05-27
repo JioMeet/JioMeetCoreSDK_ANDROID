@@ -15,14 +15,14 @@ fun VideoView(videoView: RenderView) {
             FrameLayout(it)
         },
         update = { parentLayout ->
-            if (videoView.view.parent == null) {
+            if (videoView.view?.parent == null) {
                 if (parentLayout.childCount > 0) {
                     parentLayout.removeAllViews()
                     parentLayout.invalidate()
                 }
                 parentLayout.addView(videoView.view)
             } else {
-                (videoView.view.parent as? ViewGroup)?.apply {
+                (videoView.view?.parent as? ViewGroup)?.apply {
                     if (this != parentLayout) {
                         parentLayout.removeAllViews()
                         parentLayout.invalidate()
