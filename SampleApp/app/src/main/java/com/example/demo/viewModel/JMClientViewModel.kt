@@ -3,7 +3,6 @@ package com.example.demo.viewModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -24,6 +23,7 @@ import com.jiomeet.core.log.Logger
 import com.jiomeet.core.main.JMClient
 import com.jiomeet.core.main.event.LocalScreenShareStart
 import com.jiomeet.core.main.event.LocalScreenShareStop
+import com.jiomeet.core.main.event.OnParticipantReactions
 import com.jiomeet.core.main.event.OnRemoteUserJoinMeeting
 import com.jiomeet.core.main.event.OnRemoteUserLeftMeeting
 import com.jiomeet.core.main.event.OnRemoteUserMicStatusChanged
@@ -118,7 +118,12 @@ class JMClientViewModel @Inject constructor(
                         setLocalUser(it.user)
                     }
 
+                    is OnParticipantReactions -> {
+
+                    }
+
                     is OnRemoteUserJoinMeeting -> {
+                        jmClient.subscribeRemoteUserVideo(it.user.uid, true)
                         appendRemoteUser(it.user)
                     }
 
